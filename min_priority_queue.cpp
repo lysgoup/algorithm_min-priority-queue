@@ -1,6 +1,9 @@
 /*
 References
-
+1. 2020년 김호준 교수님 데이터구조 강의 슬라이드 chapter 26(Heap)
+2. 객체 포인터
+  https://jamielim.tistory.com/entry/5%EC%A3%BC%EC%B0%A8-%ED%81%B4%EB%9E%98%EC%8A%A4%EC%99%80-%EA%B0%9D%EC%B2%B4-%EA%B0%9D%EC%B2%B4-%ED%8F%AC%EC%9D%B8%ED%84%B0
+3. 
 */
 // Should use Heap data structure
 // Element index should begin from 1 not 0
@@ -69,8 +72,12 @@ class heap{
 public:
   heap();
   void insert_heap(student newstd);
+  void delete_root();
   int get_csize();
   void print_info(int n);
+  void decrease_csize();
+  void MIN_Heapify(int k);
+  void Build_MIN_Heap();
 };
 
 //initialize heap
@@ -83,6 +90,11 @@ int heap::get_csize(){
   return csize;
 }
 
+//decrease heap size
+void heap::decrease_csize(){
+  csize--;
+}
+
 //print the nth element
 void heap::print_info(int n){
   cout << "[" << h[n].get_name() << ", " << h[n].get_id() << ", " << h[n].get_school() << "]" << endl;
@@ -92,7 +104,7 @@ void heap::print_info(int n){
 void heap::insert_heap(student newstd){
   csize++;
   int k = csize;
-  //make a space to insert newstd
+  //find a space to insert newstd
   while((k!=1)&&(newstd.get_id()<h[k/2].get_id())){
     h[k] = h[k/2];
     k/=2;
@@ -101,24 +113,49 @@ void heap::insert_heap(student newstd){
   cout << csize << endl;
 }
 
+void heap::MIN_Heapify(int k){
+  if(k/2 > k){
+    k--;
+    
+  }
+}
+
+//delete root element
+void heap::delete_root(){
+  h[1] = h[csize];
+  csize--;
+
+}
+
 //function that print menu
 void print_menu(){
   cout << "*********** MENU ***********\n";
   cout << "I : insert new element into queue\n" << "D : Delete element with smallest key from queue\n" << "C : Decrease key of element of queue\n" << "P : Print out all elements in queue\n" << "Q : Quit" << endl;
 }
 
-void INSERT(heap S, student x){
-  S.insert_heap(x);
+//insert student instance to min_priority_queue
+void INSERT(heap* S, student* x){
+  (*S).insert_heap((*x));
+}
+
+//returns element of S with smallest key
+void MINIMUM(heap* S){
+  (*S).print_info(1);
+}
+
+
+//removes and returns element of S with smallest key
+void EXTRACT_MIN(heap *S){
+  if((*S).get_csize()<1){
+    cout << "There is no element in queue" <<endl;
+    return;
+  }
+  MINIMUM(S);
+  cout << " is deleted" << endl;
+  (*S).delete_root();
 }
 
 /*
-void MINIMUM(S){
-
-}
-
-void EXTRACT-MIN(S){
-
-}
 
 void DECREASE-KEY(S, x, k){
 
@@ -129,6 +166,7 @@ void DECREASE-KEY(S, x, k){
 //main function start
 int main(){
   heap my_heap;
+  heap *S = &my_heap;
   char choose;
 
   while(1){
@@ -139,7 +177,7 @@ int main(){
     cout << "Choose menu: ";
     cin >> choose;
 
-    //INSERT
+    //Insert element
     if(choose == 'I'){
       student stu;
       string n;
@@ -152,26 +190,30 @@ int main(){
       cout << "Enter school of element: ";
       cin >> s;
       stu.set_data(n,i,s);
-      my_heap.insert_heap(stu);
-      //INSERT(my_heap,stu);
-      cout << my_heap.get_csize() << endl;
+      student *x = &stu;
+      INSERT(S,x);
     }
+    //Delete element
     else if(choose == 'D'){
-
+      EXTRACT_MIN(S);
     }
+    //Decrease key value of the element
     else if(choose == 'C'){
 
     }
+    //Print out all elements
     else if(choose == 'P'){
       cout << my_heap.get_csize() << endl;
       for(int i=1;i <= my_heap.get_csize();i++){
         my_heap.print_info(i);
       }
     }
+    //Terminate program
     else if(choose == 'Q'){
       cout << "Thank you, Bye!" <<endl;
       return 0;
     }
+    //Wrong input
     else{
       cout << "Wrong Input : Please choose again\n";
     }
