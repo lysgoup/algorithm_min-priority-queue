@@ -64,6 +64,9 @@ public:
   string get_school(){
     return school;
   }
+  void edit_id(int k){
+    id = k;
+  }
 };
 
 class heap{
@@ -71,13 +74,16 @@ class heap{
   int csize;
 public:
   heap();
-  void insert_heap(student newstd);
-  void delete_root();
   int get_csize();
-  void print_info(int n);
+  void increase_csize();
   void decrease_csize();
+  void insert_element(student newstu);
+  void print_info(int n);
+  void insert_heap(student newstd);
   void MIN_Heapify(int k);
   void Build_MIN_Heap();
+  void delete_root();
+  void edit_element(int x, int k);
 };
 
 //initialize heap
@@ -90,33 +96,50 @@ int heap::get_csize(){
   return csize;
 }
 
+//increase heap size
+void heap::increase_csize(){
+  csize++;
+}
+
 //decrease heap size
 void heap::decrease_csize(){
   csize--;
 }
 
+//insert elements in heap
+void heap::insert_element(student newstd){
+  h[csize] = newstd;
+}
+
 //print the nth element
 void heap::print_info(int n){
-  cout << "[" << h[n].get_name() << ", " << h[n].get_id() << ", " << h[n].get_school() << "]" << endl;
+  cout << "[" << h[n].get_name() << ", " << h[n].get_id() << ", " << h[n].get_school() << "] ";
 }
 
-//insert elements in heap
-void heap::insert_heap(student newstd){
-  csize++;
-  int k = csize;
-  //find a space to insert newstd
-  while((k!=1)&&(newstd.get_id()<h[k/2].get_id())){
-    h[k] = h[k/2];
-    k/=2;
-  }
-  h[k] = newstd;
-  cout << csize << endl;
-}
-
+//Min-Heapify
 void heap::MIN_Heapify(int k){
-  if(k/2 > k){
-    k--;
-    
+  int left = k*2;
+  int right = k*2+1;
+  int smallest;
+  if (left<=csize && h[left].get_id()<h[k].get_id()){
+    smallest = left;
+  }
+  else smallest = k;
+  if(right<=csize && h[right].get_id()<h[smallest].get_id()){
+    smallest = right;
+  }
+  if(smallest != k){
+    student tmp = h[k];
+    h[k] = h[smallest];
+    h[smallest] = tmp;
+    MIN_Heapify(smallest);
+  }
+}
+
+//build min-heap using min-heapify
+void heap::Build_MIN_Heap(){
+  for(int i=csize/2;i>0;i--){
+    MIN_Heapify(i);
   }
 }
 
@@ -124,18 +147,27 @@ void heap::MIN_Heapify(int k){
 void heap::delete_root(){
   h[1] = h[csize];
   csize--;
-
+  Build_MIN_Heap();
 }
+
+//edit element's id value
+void heap::edit_element(int x, int k){
+  h[x].edit_id(k);
+}
+
 
 //function that print menu
 void print_menu(){
-  cout << "*********** MENU ***********\n";
+  cout << "\n*********** MENU ***********\n";
   cout << "I : insert new element into queue\n" << "D : Delete element with smallest key from queue\n" << "C : Decrease key of element of queue\n" << "P : Print out all elements in queue\n" << "Q : Quit" << endl;
 }
 
 //insert student instance to min_priority_queue
 void INSERT(heap* S, student* x){
-  (*S).insert_heap((*x));
+  (*S).increase_csize();
+  (*S).insert_element(*x);
+  (*S).Build_MIN_Heap();
+  cout << "New element " << "[" << (*x).get_name() << ", " << (*x).get_id() << ", " << (*x).get_school() << "] " << "is inserted." <<endl;
 }
 
 //returns element of S with smallest key
@@ -155,13 +187,10 @@ void EXTRACT_MIN(heap *S){
   (*S).delete_root();
 }
 
-/*
-
-void DECREASE-KEY(S, x, k){
-
+void DECREASE_KEY(heap* S, int x, int k){
+  (*S).edit_element(x, k);
+  (*S).Build_MIN_Heap();
 }
-*/
-
 
 //main function start
 int main(){
@@ -199,11 +228,16 @@ int main(){
     }
     //Decrease key value of the element
     else if(choose == 'C'){
-
+      int index;
+      int id;
+      cout << "Enter index of element: ";
+      cin >> index;
+      cout << "Enter id value: ";
+      cin >> id;
+      DECREASE_KEY(S, index, id);
     }
     //Print out all elements
     else if(choose == 'P'){
-      cout << my_heap.get_csize() << endl;
       for(int i=1;i <= my_heap.get_csize();i++){
         my_heap.print_info(i);
       }
